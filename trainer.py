@@ -22,7 +22,7 @@ from dpipe.batch_iter import Infinite, load_by_random_id, unpack_args, multiply
 from dpipe.im.shape_utils import prepend_dims
 
 
-from utils.config_utils import Config
+
 from datasets.cc359_ds import CC359
 from datasets.msm_ds import MultiSiteMri
 from datasets.msm_metric_computer import ComputeMetricsMsm
@@ -35,11 +35,44 @@ from utils.training_utils import train_step, load_model_state_fold_wise
 from utils.training_utils import fix_seed
 from paths import *
 
+
+from functools import partial
+from torch.optim import *
+
+# Don't remove imports from here:
+from utils.training_utils import load_by_gradual_id
+
+
+class Config:
+    def parse(self,raw):
+        for k,v in raw.items():
+            if type(v) == dict:
+                curr_func = v.pop('FUNC')
+                return_as_class = v.pop('as_class',False)
+                if curr_func not in globals():
+                    raise Exception(f'func {curr_func} must be imported')
+
+                for key,val in v.items():
+                    if type(val) == str and val in globals():
+                        v[key] = globals()[val]
+                v = partial(globals()[curr_func],**v)
+                if return_as_class:
+                    v = v()
+            elif v in globals():
+                v = globals()[v]
+            setattr(self,k,v)
+    def __init__(self, raw):
+        self._second_round = raw.pop('SECOND_ROUND') if 'SECOND_ROUND' in raw else {}
+        self.parse(raw)
+
+    def second_round(self):
+        self.parse(self._second_round)
+
 def parse_input():
     cli = argparse.ArgumentParser()
     cli.add_argument("--exp_name", default='debug')
     cli.add_argument("--config")
-    cli.add_argument("--device", default='cpu',type=int)
+    cli.add_argument("--device", default='cpu')
     cli.add_argument("--source", default=0,type=int)
     cli.add_argument("--target", default=2,type=int)
     cli.add_argument("--target_size", default=2,type=int)
@@ -59,6 +92,9 @@ def parse_input():
             raise Exception('in ds msm source must the same as target')
     if input_params.config is None:
         raise Exception('config is required parameter')
+    if type(input_params.device) == str and input_params.device.isnumeric():
+        input_params.device = int(input_params.device)
+
     return input_params
 
 

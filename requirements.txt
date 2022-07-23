@@ -1,0 +1,17 @@
+deep-pipe==0.1.1
+imageio==2.19.5
+MedPy==0.4.0
+nibabel==4.0.1
+numpy
+pandas==1.4.3
+Pillow==9.2.0
+python-dateutil==2.8.2
+PyYAML==6.0
+scikit-image==0.19.3
+scikit-learn==1.1.1
+scipy==1.8.1
+SimpleITK==2.1.1.2
+torch==1.12.0
+torchvision==0.13.0
+tqdm==4.64.0
+wandb==0.12.21
