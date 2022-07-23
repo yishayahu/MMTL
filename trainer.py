@@ -22,7 +22,7 @@ from dpipe.batch_iter import Infinite, load_by_random_id, unpack_args, multiply
 from dpipe.im.shape_utils import prepend_dims
 
 
-from configs.config_utils import Config
+from utils.config_utils import Config
 from datasets.cc359_ds import CC359
 from datasets.msm_ds import MultiSiteMri
 from datasets.msm_metric_computer import ComputeMetricsMsm
@@ -39,7 +39,7 @@ def parse_input():
     cli = argparse.ArgumentParser()
     cli.add_argument("--exp_name", default='debug')
     cli.add_argument("--config")
-    cli.add_argument("--device", default='cpu')
+    cli.add_argument("--device", default='cpu',type=int)
     cli.add_argument("--source", default=0,type=int)
     cli.add_argument("--target", default=2,type=int)
     cli.add_argument("--target_size", default=2,type=int)
@@ -75,7 +75,6 @@ if __name__ == '__main__':
     msm = opts.dataset == 'MSM'
     slice_sampling_interval = 1
     if msm:
-        assert opts.source == opts.target or pretrain
         base_res_dir = msm_res_dir
         base_split_dir = msm_splits_dir
     else:
