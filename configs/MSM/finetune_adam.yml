@@ -1,0 +1,6 @@
+
+NUM_EPOCHS: 60
+MSM: True
+OPTIMIZER:
+  FUNC: Adam
+LR_INIT: 0.0001
